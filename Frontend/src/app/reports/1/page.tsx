@@ -14,54 +14,60 @@ export default async function Report1Page({
   const { data: libros } = await getLibrosPopulares(formData);
 
   return (
-    <div className="p-10 bg-gray-50 min-h-screen font-sans">
-      <Link href="/" className="text-blue-600 hover:underline mb-4 block">← Volver al Dashboard</Link>
-      <h1 className="text-3xl font-bold text-blue-900 mb-6">📖 Libros Populares</h1>
+    <div className="py-12 px-6">
+      <Link href="/" className="text-blue-600 hover:underline text-sm">← Volver al Dashboard</Link>
+      
+      <header className="mt-4 mb-8">
+        <h1 className="text-2xl font-semibold text-slate-800">Libros Populares</h1>
+        <p className="text-slate-500 text-sm mt-1">Ranking de libros más solicitados</p>
+      </header>
 
-      <form className="mb-8 flex gap-4 items-end">
+      <form className="mb-6 flex gap-3 items-end">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Filtrar por Popularidad:</label>
+          <label className="block text-sm text-slate-600 mb-1">Filtrar por popularidad</label>
           <select 
             name="popularidad" 
             defaultValue={searchParams.popularidad || 'Todos'}
-            className="mt-1 block w-48 p-2 border border-gray-300 rounded-md"
+            className="block w-44 px-3 py-2 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="Todos">Todos</option>
             <option value="Muy Popular">Muy Popular</option>
             <option value="Normal">Normal</option>
           </select>
         </div>
-        <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        <button type="submit" className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
           Filtrar
         </button>
       </form>
 
-      <div className="mb-6 bg-white p-4 rounded shadow border-l-4 border-blue-500">
-        <p className="text-gray-500">Total Libros Listados</p>
-        <p className="text-2xl font-bold">{libros?.length || 0}</p>
+      <div className="mb-6 bg-white p-4 rounded-lg border border-slate-200">
+        <p className="text-slate-500 text-sm">Total de libros</p>
+        <p className="text-2xl font-semibold text-slate-800">{libros?.length || 0}</p>
       </div>
 
-      <div className="bg-white shadow rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Título</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Autor</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Género</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Préstamos</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+              <th className="px-4 py-3 text-left font-medium text-slate-600">Título</th>
+              <th className="px-4 py-3 text-left font-medium text-slate-600">Autor</th>
+              <th className="px-4 py-3 text-left font-medium text-slate-600">Género</th>
+              <th className="px-4 py-3 text-center font-medium text-slate-600">Préstamos</th>
+              <th className="px-4 py-3 text-left font-medium text-slate-600">Estado</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="divide-y divide-slate-100">
             {libros?.map((libro: any, index: number) => (
-              <tr key={index}>
-                <td className="px-6 py-4">{libro.titulo}</td>
-                <td className="px-6 py-4">{libro.autor}</td>
-                <td className="px-6 py-4">{libro.genero}</td>
-                <td className="px-6 py-4 text-center">{libro.total_prestamos}</td>
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    libro.popularidad === 'Muy Popular' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+              <tr key={index} className="hover:bg-slate-50">
+                <td className="px-4 py-3 font-medium text-slate-800">{libro.titulo}</td>
+                <td className="px-4 py-3 text-slate-600">{libro.autor}</td>
+                <td className="px-4 py-3 text-slate-600">{libro.genero}</td>
+                <td className="px-4 py-3 text-center text-slate-800">{libro.total_prestamos}</td>
+                <td className="px-4 py-3">
+                  <span className={`inline-block px-2 py-1 text-xs rounded ${
+                    libro.popularidad === 'Muy Popular' 
+                      ? 'bg-green-50 text-green-700' 
+                      : 'bg-slate-100 text-slate-600'
                   }`}>
                     {libro.popularidad}
                   </span>

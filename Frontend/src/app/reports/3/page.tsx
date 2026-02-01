@@ -3,43 +3,47 @@ import { getRankingGeneros } from '@/lib/actions/report';
 
 export default async function Report3Page() {
   const { data: generos } = await getRankingGeneros();
-  // KPI: Genero Top 1
   const topGenero = generos && generos.length > 0 ? generos[0].genero : 'N/A';
 
   return (
-    <div className="p-10 bg-gray-50 min-h-screen font-sans">
-      <Link href="/" className="text-blue-600 hover:underline mb-4 block">← Volver al Dashboard</Link>
-      <h1 className="text-3xl font-bold text-blue-900 mb-6">📊 Análisis de Géneros</h1>
+    <div className="py-12 px-6">
+      <Link href="/" className="text-blue-600 hover:underline text-sm">← Volver al Dashboard</Link>
+      
+      <header className="mt-4 mb-8">
+        <h1 className="text-2xl font-semibold text-slate-800">Análisis de Géneros</h1>
+        <p className="text-slate-500 text-sm mt-1">Participación de mercado por género literario</p>
+      </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white p-6 rounded shadow border-l-4 border-purple-500">
-          <p className="text-gray-500">Género Más Popular</p>
-          <p className="text-3xl font-bold">{topGenero}</p>
-        </div>
+      <div className="mb-6 bg-white p-4 rounded-lg border border-slate-200">
+        <p className="text-slate-500 text-sm">Género más popular</p>
+        <p className="text-2xl font-semibold text-slate-800">{topGenero}</p>
       </div>
 
-      <div className="bg-white shadow rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ranking</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Género</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Préstamos</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Participación (%)</th>
+              <th className="px-4 py-3 text-center font-medium text-slate-600 w-20">Ranking</th>
+              <th className="px-4 py-3 text-left font-medium text-slate-600">Género</th>
+              <th className="px-4 py-3 text-center font-medium text-slate-600">Préstamos</th>
+              <th className="px-4 py-3 text-left font-medium text-slate-600">Participación</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="divide-y divide-slate-100">
             {generos?.map((g: any, i: number) => (
-              <tr key={i}>
-                <td className="px-6 py-4 font-bold text-gray-700">#{g.ranking}</td>
-                <td className="px-6 py-4">{g.genero}</td>
-                <td className="px-6 py-4">{g.total_prestamos}</td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center">
-                    <span className="mr-2">{g.porcentaje_del_total}%</span>
-                    <div className="w-24 bg-gray-200 rounded-full h-2.5">
-                      <div className="bg-purple-600 h-2.5 rounded-full" style={{ width: `${g.porcentaje_del_total}%` }}></div>
+              <tr key={i} className="hover:bg-slate-50">
+                <td className="px-4 py-3 text-center font-medium text-slate-400">#{g.ranking}</td>
+                <td className="px-4 py-3 font-medium text-slate-800">{g.genero}</td>
+                <td className="px-4 py-3 text-center text-slate-800">{g.total_prestamos}</td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-2 bg-slate-100 rounded-full max-w-32">
+                      <div 
+                        className="h-2 bg-blue-500 rounded-full" 
+                        style={{ width: `${g.porcentaje_del_total}%` }}
+                      />
                     </div>
+                    <span className="text-slate-600 text-xs w-12">{g.porcentaje_del_total}%</span>
                   </div>
                 </td>
               </tr>
