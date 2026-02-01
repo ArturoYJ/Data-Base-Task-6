@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getAutoresMetricas } from '@/lib/actions/report';
+import { AutorMetrica } from '@/lib/types/reports';
 
 export default async function Report5Page({
   searchParams,
@@ -30,7 +31,7 @@ export default async function Report5Page({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {autores?.map((a: any, i: number) => (
+            {autores?.map((a: AutorMetrica, i: number) => (
               <tr key={i} className="hover:bg-slate-50">
                 <td className="px-4 py-3 font-medium text-slate-800">{a.nombre}</td>
                 <td className="px-4 py-3 text-slate-500">{a.nacionalidad}</td>

@@ -68,6 +68,7 @@ export async function getRankingGeneros() {
     const result = await pool.query('SELECT * FROM reporte_ranking_generos ORDER BY ranking ASC');
     return { success: true, data: result.rows };
   } catch (error) {
+    console.error('Error en getRankingGeneros:', error);
     return { success: false, error: 'Error al cargar géneros' };
   }
 }

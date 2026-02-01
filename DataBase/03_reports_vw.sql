@@ -25,8 +25,8 @@ SELECT
     COUNT(p.id) AS libros_pedidos,
     SUM(p.dias_retraso) AS dias_retraso_total,
     CASE 
-        WHEN COUNT(p.id) >= 2 THEN 'Lector Frecuente'
         WHEN SUM(p.dias_retraso) > 5 THEN 'Lector Moroso'
+        WHEN COUNT(p.id) >= 2 THEN 'Lector Frecuente'
         ELSE 'Lector Casual'
     END AS categoria_lector
 FROM usuarios u

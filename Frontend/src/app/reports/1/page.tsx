@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getLibrosPopulares } from '@/lib/actions/report';
+import { LibroPopular } from '@/lib/types/reports';
 
 export default async function Report1Page({
   searchParams,
@@ -22,7 +23,7 @@ export default async function Report1Page({
         <p className="text-slate-500 text-sm mt-1">Ranking de libros más solicitados</p>
       </header>
 
-      <form className="mb-6 flex gap-3 items-end">
+      <form method="get" className="mb-6 flex gap-3 items-end">
         <div>
           <label className="block text-sm text-slate-600 mb-1">Filtrar por popularidad</label>
           <select 
@@ -57,7 +58,7 @@ export default async function Report1Page({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {libros?.map((libro: any, index: number) => (
+            {libros?.map((libro: LibroPopular, index: number) => (
               <tr key={index} className="hover:bg-slate-50">
                 <td className="px-4 py-3 font-medium text-slate-800">{libro.titulo}</td>
                 <td className="px-4 py-3 text-slate-600">{libro.autor}</td>

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getUsuariosStatus } from '@/lib/actions/report';
+import { UsuarioStatus } from '@/lib/types/reports';
 
 export default async function Report2Page({
   searchParams,
@@ -22,7 +23,7 @@ export default async function Report2Page({
         <p className="text-slate-500 text-sm mt-1">Análisis de comportamiento de usuarios</p>
       </header>
 
-      <form className="mb-6 flex gap-3 items-end">
+      <form method="get" className="mb-6 flex gap-3 items-end">
         <div>
           <label className="block text-sm text-slate-600 mb-1">Categoría</label>
           <select 
@@ -53,7 +54,7 @@ export default async function Report2Page({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {usuarios?.map((u: any, i: number) => (
+            {usuarios?.map((u: UsuarioStatus, i: number) => (
               <tr key={i} className="hover:bg-slate-50">
                 <td className="px-4 py-3 font-medium text-slate-800">{u.nombre}</td>
                 <td className="px-4 py-3 text-slate-500">{u.email}</td>

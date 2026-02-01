@@ -1,8 +1,13 @@
 import Link from 'next/link';
 import { getRankingGeneros } from '@/lib/actions/report';
+import { RankingGenero } from '@/lib/types/reports';
+
+export const dynamic = 'force-dynamic';
 
 export default async function Report3Page() {
-  const { data: generos } = await getRankingGeneros();
+  const result = await getRankingGeneros();
+  const generos = result.data;
+  const error = result.success === false ? result.error : null;
   const topGenero = generos && generos.length > 0 ? generos[0].genero : 'N/A';
 
   return (
@@ -13,6 +18,18 @@ export default async function Report3Page() {
         <h1 className="text-2xl font-semibold text-slate-800">Análisis de Géneros</h1>
         <p className="text-slate-500 text-sm mt-1">Participación de mercado por género literario</p>
       </header>
+
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+          Error: {error}
+        </div>
+      )}
+
+      {!generos && !error && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-700">
+          Cargando datos o no hay géneros disponibles...
+        </div>
+      )}
 
       <div className="mb-6 bg-white p-4 rounded-lg border border-slate-200">
         <p className="text-slate-500 text-sm">Género más popular</p>
@@ -30,7 +47,7 @@ export default async function Report3Page() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {generos?.map((g: any, i: number) => (
+            {generos?.map((g: RankingGenero, i: number) => (
               <tr key={i} className="hover:bg-slate-50">
                 <td className="px-4 py-3 text-center font-medium text-slate-400">#{g.ranking}</td>
                 <td className="px-4 py-3 font-medium text-slate-800">{g.genero}</td>

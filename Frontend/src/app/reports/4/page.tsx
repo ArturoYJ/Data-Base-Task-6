@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getPrestamos } from '@/lib/actions/report';
+import { PrestamoKPI } from '@/lib/types/reports';
 
 export default async function Report4Page({
   searchParams,
@@ -30,7 +31,7 @@ export default async function Report4Page({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {prestamos?.map((p: any, i: number) => (
+            {prestamos?.map((p: PrestamoKPI, i: number) => (
               <tr key={i} className="hover:bg-slate-50">
                 <td className="px-4 py-3 font-medium text-slate-800">{p.titulo}</td>
                 <td className="px-4 py-3 text-slate-600">{p.usuario}</td>
