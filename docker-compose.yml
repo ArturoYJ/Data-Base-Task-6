@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: biblioteca-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: lab_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./DataBase:/docker-entrypoint-initdb.d:ro
+    networks:
+      - biblioteca-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d lab_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  nextjs:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: biblioteca-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://app_library:secure_pass_123@postgres:5432/lab_db
+      - NODE_ENV=production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - biblioteca-net
+
+volumes:
+  postgres_data:
+
+networks:
+  biblioteca-net:
+    driver: bridge
