@@ -4,6 +4,7 @@
 -- Metricas: Total de veces prestado.
 -- Group By: Necesario para contar los prestamos por cada libro.
 -- Having: Solo mostramos libros con al menos 1 prestamo.
+-- VERIFY: SELECT COUNT(*) FROM reporte_libros_populares WHERE total_prestamos >= 3;
 
 CREATE VIEW reporte_libros_populares AS
 SELECT 
@@ -28,6 +29,7 @@ ORDER BY total_prestamos DESC;
 -- Metricas: Conteo de prestamos y promedio de retrasos.
 -- Group By: Agrupa por usuario para sacar sus estadisticas.
 -- Having: Filtra usuarios que nunca han pedido nada.
+-- VERIFY: SELECT * FROM reporte_usuarios_status WHERE categoria_lector = 'Lector Moroso';
 
 CREATE VIEW reporte_usuarios_status AS
 SELECT 
@@ -50,6 +52,7 @@ HAVING COUNT(p.id) >= 1;
 -- Grain: Una fila por genero.
 -- Metricas: Total de prestamos por genero.
 -- Window Function: ROW_NUMBER para numerar el ranking y SUM OVER para el porcentaje.
+-- VERIFY: SELECT SUM(porcentaje_del_total) FROM reporte_ranking_generos; -- Debe dar 100
 
 CREATE VIEW reporte_ranking_generos AS
 SELECT 
@@ -69,6 +72,7 @@ GROUP BY l.genero;
 -- Grain: Una fila por prestamo.
 -- Metricas: Dias que lleva el libro prestado.
 -- CTE: Se usa para calcular primero cuantos prestamos existen en total en la historia.
+-- VERIFY: SELECT * FROM reporte_prestamos_kpis WHERE dias_transcurridos > 30;
 
 CREATE VIEW reporte_prestamos_kpis AS
 WITH conteo_global AS (
@@ -93,6 +97,7 @@ WHERE p.estado IN ('pendiente', 'retrasado');
 -- Grain: Una fila por autor.
 -- Metricas: Total de libros en stock vs libros prestados.
 -- Calculado: Ratio de rotacion (prestamos / stock).
+-- VERIFY: SELECT nombre, rotacion FROM reporte_autores_metricas ORDER BY rotacion DESC;
 
 CREATE VIEW reporte_autores_metricas AS
 SELECT 
