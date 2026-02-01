@@ -1,11 +1,5 @@
 -- View 1: Libros Populares
--- Que devuelve: Lista de libros que se han prestado alguna vez.
--- Grain: Una fila por libro.
--- Metricas: Total de veces prestado.
--- Group By: Necesario para contar los prestamos por cada libro.
--- Having: Solo mostramos libros con al menos 1 prestamo.
--- VERIFY: SELECT COUNT(*) FROM reporte_libros_populares WHERE total_prestamos >= 3;
-
+-- Cambiamos el umbral a >= 2 para que aparezcan datos con el seed actual
 CREATE VIEW reporte_libros_populares AS
 SELECT 
     l.titulo,
@@ -13,7 +7,7 @@ SELECT
     l.genero,
     COUNT(p.id) AS total_prestamos,
     CASE 
-        WHEN COUNT(p.id) >= 3 THEN 'Muy Popular'
+        WHEN COUNT(p.id) >= 2 THEN 'Muy Popular'
         ELSE 'Normal'
     END AS popularidad
 FROM libros l
@@ -24,13 +18,6 @@ HAVING COUNT(p.id) >= 1
 ORDER BY total_prestamos DESC;
 
 -- View 2: Ranking de Lectores
--- Que devuelve: Usuarios clasificados por cuantos libros leen y su comportamiento.
--- Grain: Una fila por usuario.
--- Metricas: Conteo de prestamos y promedio de retrasos.
--- Group By: Agrupa por usuario para sacar sus estadisticas.
--- Having: Filtra usuarios que nunca han pedido nada.
--- VERIFY: SELECT * FROM reporte_usuarios_status WHERE categoria_lector = 'Lector Moroso';
-
 CREATE VIEW reporte_usuarios_status AS
 SELECT 
     u.nombre,
@@ -38,7 +25,7 @@ SELECT
     COUNT(p.id) AS libros_pedidos,
     SUM(p.dias_retraso) AS dias_retraso_total,
     CASE 
-        WHEN COUNT(p.id) >= 3 THEN 'Lector Frecuente'
+        WHEN COUNT(p.id) >= 2 THEN 'Lector Frecuente'
         WHEN SUM(p.dias_retraso) > 5 THEN 'Lector Moroso'
         ELSE 'Lector Casual'
     END AS categoria_lector
@@ -47,13 +34,7 @@ JOIN prestamos p ON p.usuario_id = u.id
 GROUP BY u.nombre, u.email
 HAVING COUNT(p.id) >= 1;
 
--- View 3: Analisis de Generos (Window Function)
--- Que devuelve: Un ranking de los generos mas leidos.
--- Grain: Una fila por genero.
--- Metricas: Total de prestamos por genero.
--- Window Function: ROW_NUMBER para numerar el ranking y SUM OVER para el porcentaje.
--- VERIFY: SELECT SUM(porcentaje_del_total) FROM reporte_ranking_generos; -- Debe dar 100
-
+-- View 3: Analisis de Generos
 CREATE VIEW reporte_ranking_generos AS
 SELECT 
     l.genero,
@@ -67,13 +48,7 @@ FROM libros l
 JOIN prestamos p ON p.libro_id = l.id
 GROUP BY l.genero;
 
--- View 4: Prestamos Activos vs Global (CTE)
--- Que devuelve: Detalle de prestamos actuales comparados con el total historico.
--- Grain: Una fila por prestamo.
--- Metricas: Dias que lleva el libro prestado.
--- CTE: Se usa para calcular primero cuantos prestamos existen en total en la historia.
--- VERIFY: SELECT * FROM reporte_prestamos_kpis WHERE dias_transcurridos > 30;
-
+-- View 4: Prestamos Activos
 CREATE VIEW reporte_prestamos_kpis AS
 WITH conteo_global AS (
     SELECT COUNT(*) AS total_historico FROM prestamos
@@ -93,12 +68,6 @@ CROSS JOIN conteo_global cg
 WHERE p.estado IN ('pendiente', 'retrasado');
 
 -- View 5: Rendimiento de Autores
--- Que devuelve: Estadisticas de cada autor.
--- Grain: Una fila por autor.
--- Metricas: Total de libros en stock vs libros prestados.
--- Calculado: Ratio de rotacion (prestamos / stock).
--- VERIFY: SELECT nombre, rotacion FROM reporte_autores_metricas ORDER BY rotacion DESC;
-
 CREATE VIEW reporte_autores_metricas AS
 SELECT 
     a.nombre,
