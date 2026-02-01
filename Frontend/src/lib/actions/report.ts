@@ -1,0 +1,47 @@
+'use server'
+
+import { pool } from '@/lib/db/db';
+import { filtroLibrosSchema, paginacionSchema } from '@/lib/validations/schemas';
+
+export async function getLibrosPopulares(formData: FormData) {
+  const popularidad = formData.get('popularidad')?.toString() || 'Todos';
+
+  let query = 'SELECT * FROM reporte_libros_populares';
+  const params: string[] = [];
+
+  if (popularidad !== 'Todos') {
+    query += ' WHERE popularidad = $1';
+    params.push(popularidad);
+  }
+
+  try {
+    const result = await pool.query(query, params);
+    return { success: true, data: result.rows };
+  } catch (error) {
+    return { success: false, error: 'Error al cargar libros' };
+  }
+}
+
+export async function getPrestamos(page: number = 1) {
+  const limit = 5;
+  const offset = (page - 1) * limit;
+
+  try {
+    const query = `
+      SELECT * FROM reporte_prestamos_kpis
+      LIMIT $1 OFFSET $2
+    `;
+    const result = await pool.query(query, [limit, offset]);
+
+    const countResult = await pool.query('SELECT COUNT(*) FROM reporte_prestamos_kpis');
+    const total = parseInt(countResult.rows[0].count);
+
+    return {
+      success: true,
+      data: result.rows,
+      totalPages: Math.ceil(total / limit)
+    };
+  } catch (error) {
+    return { success: false, error: 'Error cargando préstamos' };
+  }
+}
