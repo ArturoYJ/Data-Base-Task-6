@@ -1,14 +1,14 @@
-DROP ROLE IF EXISTS app_library;
+DROP ROLE IF EXISTS ${APP_USER};
 
-CREATE ROLE app_library WITH LOGIN PASSWORD 'secure_pass_123';
+CREATE ROLE ${APP_USER} WITH LOGIN PASSWORD '${APP_PASSWORD}';
 
-GRANT CONNECT ON DATABASE lab_db TO app_library;
-GRANT USAGE ON SCHEMA public TO app_library;
+GRANT CONNECT ON DATABASE ${POSTGRES_DB} TO ${APP_USER};
+GRANT USAGE ON SCHEMA public TO ${APP_USER};
 
-GRANT SELECT ON reporte_libros_populares TO app_library;
-GRANT SELECT ON reporte_usuarios_status TO app_library;
-GRANT SELECT ON reporte_ranking_generos TO app_library;
-GRANT SELECT ON reporte_prestamos_kpis TO app_library;
-GRANT SELECT ON reporte_autores_metricas TO app_library;
+GRANT SELECT ON reporte_libros_populares TO ${APP_USER};
+GRANT SELECT ON reporte_usuarios_status TO ${APP_USER};
+GRANT SELECT ON reporte_ranking_generos TO ${APP_USER};
+GRANT SELECT ON reporte_prestamos_kpis TO ${APP_USER};
+GRANT SELECT ON reporte_autores_metricas TO ${APP_USER};
 
-REVOKE CREATE ON SCHEMA public FROM app_library;
+REVOKE CREATE ON SCHEMA public FROM ${APP_USER};

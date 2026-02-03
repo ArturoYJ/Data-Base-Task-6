@@ -11,6 +11,26 @@ Este proyecto implementa un dashboard de análisis de datos utilizando **Next.js
     ```
 3.  **Acceder:** Abre `http://localhost:3000` en tu navegador.
 
+## Configuración de Variables de Entorno
+
+Este proyecto utiliza un archivo `.env` para centralizar las credenciales y configuraciones.
+
+**Para desarrollo local:**
+
+1. Copia el archivo `.env.example` a `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+2. Modifica los valores en `.env` según tus necesidades.
+3. **IMPORTANTE:** El archivo `.env` contiene credenciales sensibles y está excluido del control de versiones.
+
+**Variables disponibles:**
+
+- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: Credenciales de PostgreSQL
+- `APP_USER`, `APP_PASSWORD`: Credenciales del rol de aplicación
+- `NODE_ENV`: Entorno de Node.js (production, development)
+- `NEXT_PUBLIC_APP_PORT`: Puerto de la aplicación Next.js
+
 ## Decisiones Técnicas y Optimización
 
 ### Justificación de Índices SQL
