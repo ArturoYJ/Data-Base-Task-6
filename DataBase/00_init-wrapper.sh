@@ -4,7 +4,7 @@
 
 set -e
 
-echo "🔧 Procesando archivos SQL con variables de entorno..."
+echo "Procesando archivos SQL con variables de entorno..."
 
 # Directorio donde están los archivos SQL templates
 SQL_TEMPLATE_DIR="/docker-entrypoint-initdb.d/sql"
@@ -17,7 +17,7 @@ mkdir -p "$TEMP_DIR"
 for sql_file in "$SQL_TEMPLATE_DIR"/*.sql; do
     if [ -f "$sql_file" ]; then
         filename=$(basename "$sql_file")
-        echo "   Procesando: $filename"
+        echo "Procesando: $filename"
         
         # Reemplazar variables de entorno en el archivo SQL usando sed
         cat "$sql_file" | \
@@ -33,4 +33,4 @@ for sql_file in "$SQL_TEMPLATE_DIR"/*.sql; do
     fi
 done
 
-echo "✅ Todos los archivos SQL han sido procesados correctamente"
+echo "Todos los archivos SQL han sido procesados correctamente"
