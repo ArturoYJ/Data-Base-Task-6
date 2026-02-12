@@ -71,10 +71,23 @@ Para cumplir con el rendimiento en grandes volúmenes de datos, se crearon los s
     - **Motivo:** La vista `reporte_ranking_generos` utiliza Window Functions particionadas o agrupadas por género.
     - **Impacto:** Al tener los datos pre-ordenados por el índice, el motor de base de datos optimiza la operación `GROUP BY`, reduciendo el uso de memoria de ordenamiento (Sort Memory).
 
-### Seguridad
+---
 
-- La aplicación se conecta utilizando el rol definido en APP_USER en el archivo `.env` `(default: app_library)`.
-- Este rol tiene permisos restringidos (GRANT SELECT) exclusivamente sobre las Vistas, protegiendo las tablas base de modificaciones accidentales o inyecciones SQL destructivas (por ejemplo, DROP TABLE).
+## Thread model and security
+
+Para garantizar la integridad del sistema y proteger los datos de la biblioteca, se implementó una estrategia de seguridad en capas (Defense in Depth) cubriendo los siguientes vectores de ataque:
+
+1.  **Principio de Menor Privilegio (Database Layer):**
+    - Se creó un rol específico `por defecto: app_library` (ver `05_roles.sql`) que **solo tiene permisos de lectura (`SELECT`)** sobre las Vistas definidas.
+    - Este usuario **no tiene acceso directo a las tablas base** ni permisos para ejecutar comandos DDL (como `DROP` o `ALTER`). Esto asegura que, incluso si la aplicación Next.js fuera comprometida, el atacante no podría alterar, eliminar registros ni destruir la estructura de la base de datos.
+
+2.  **Prevención de Inyección SQL (Application Layer):**
+    - **Validación de Tipos:** Todas las entradas de usuario (filtros, parámetros de paginación) son validadas estrictamente con **Zod** antes de procesarse. Si el input no coincide con el esquema esperado (ej. un string malicioso en lugar de un número), la petición se rechaza inmediatamente.
+    - **Consultas Parametrizadas:** En los Server Actions (`src/lib/actions/report.ts`), se utiliza el protocolo de consultas parametrizadas del driver `pg` (sintaxis `$1`, `$2`). Esto delega la sanitización de los datos al driver de la base de datos, neutralizando cualquier intento de inyección de código SQL a través de los inputs.
+
+3.  **Aislamiento de Secretos (Infrastructure Layer):**
+    - Las credenciales sensibles (contraseñas de base de datos, puertos) no están hardcodeadas en el código fuente. Se utilizan **Variables de Entorno** cargadas en tiempo de ejecución.
+    - El archivo `.env` está incluido en `.gitignore` para prevenir la filtración accidental de secretos en el repositorio de control de versiones. Se provee un `.env.example` sanitizado para facilitar el despliegue seguro en nuevos entornos.
 
 ---
 
