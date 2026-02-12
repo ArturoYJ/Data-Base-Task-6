@@ -2,16 +2,28 @@
 
 Este proyecto implementa un dashboard de análisis de datos utilizando **Next.js 14**, **PostgreSQL** y **Docker Compose**. El sistema consume Vistas SQL optimizadas para generar reportes de negocio.
 
+## Prerequisitos
+
+- [Docker](https://www.docker.com/products/docker-desktop) y Docker Compose instalados.
+- [Git](https://git-scm.com/) instalado.
+
 ## Instrucciones de Ejecución
 
-1.  **Clonar el repositorio:** Asegúrate de estar en la carpeta raíz.
+1.  **Clonar el repositorio:**
+
+    ```bash
+    git clone https://github.com/ArturoYJ/Data-Base-Task-6.git
+    cd Data-Base-Task-6
+    ```
 
 2.  **Configurar Variables de Entorno:**
-    Copia el archivo de ejemplo para crear tu configuración local:
+    Copia el archivo de ejemplo y edítalo con tus credenciales:
 
     ```bash
     cp .env.example .env
     ```
+
+    Abre el archivo `.env` y modifica las variables según tu preferencia. Como mínimo, cambia las contraseñas (`POSTGRES_PASSWORD`, `APP_PASSWORD`) y el nombre de la base de datos (`POSTGRES_DB`). Consulta la sección [Referencia de Variables](#referencia-de-variables-env) para más detalles.
 
 3.  **Levantar con Docker:**
 
@@ -19,7 +31,17 @@ Este proyecto implementa un dashboard de análisis de datos utilizando **Next.js
     docker compose up --build
     ```
 
-4.  **Acceder:** Abre `http://localhost:3000` en tu navegador.
+    Espera a que aparezca el mensaje `✓ Ready` en la terminal, indicando que tanto la base de datos como la aplicación están listas.
+
+4.  **Acceder a la aplicación:** Abre en tu navegador `http://localhost:3000` (o el puerto que hayas configurado en `NEXT_PUBLIC_APP_PORT`).
+
+5.  **Detener el proyecto:**
+
+    ```bash
+    docker compose down
+    ```
+
+> **Nota:** Si experimentas errores de conexión a la base de datos, ejecuta `docker compose down -v` para eliminar los volúmenes y luego `docker compose up --build` para reinicializar todo desde cero.
 
 ## Referencia de Variables (.env)
 
@@ -27,7 +49,7 @@ El archivo `.env` centraliza la configuración. Estas son las variables principa
 
 - `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: Credenciales de la base de datos.
 - `APP_USER`, `APP_PASSWORD`: Usuario limitado para la aplicación (seguridad).
-- `NODE_ENV`: Entorno (`development` o `production`).
+- `NODE_ENV`: Entorno (`development` o `production`). `development` es para el desarrollo y `production` es para la producción.
 - `NEXT_PUBLIC_APP_PORT`: Puerto donde correrá la web (default: 3000).
 - `POSTGRES_PORT`: Puerto expuesto de la BD (default: 5432).
 
@@ -51,8 +73,8 @@ Para cumplir con el rendimiento en grandes volúmenes de datos, se crearon los s
 
 ### Seguridad
 
-- La aplicación se conecta a la base de datos utilizando el rol `app_library`.
-- Este rol tiene permisos restringidos (GRANT SELECT) exclusivamente sobre las Vistas, protegiendo las tablas base de modificaciones accidentales o inyecciones SQL destructivas.
+- La aplicación se conecta utilizando el rol definido en APP_USER en el archivo `.env` `(default: app_library)`.
+- Este rol tiene permisos restringidos (GRANT SELECT) exclusivamente sobre las Vistas, protegiendo las tablas base de modificaciones accidentales o inyecciones SQL destructivas (por ejemplo, DROP TABLE).
 
 ---
 
@@ -79,11 +101,9 @@ Para cumplir con el rendimiento en grandes volúmenes de datos, se crearon los s
 
 ## Performance Evidence
 
-Esta sección documenta el análisis de rendimiento de las vistas SQL mediante `EXPLAIN ANALYZE`.
+Esta sección documenta el análisis de rendimiento de las vistas SQL mediante `EXPLAIN ANALYZE`, que muestra el plan de ejecución real del motor de PostgreSQL junto con los tiempos de ejecución.
 
-### 1. Análisis de Índices
-
-Ejecuta el siguiente comando en tu cliente PostgreSQL (`psql`) para verificar el uso de índices en la vista de libros populares:
+### 1. Análisis de `reporte_libros_populares`
 
 ```sql
 EXPLAIN ANALYZE SELECT * FROM reporte_libros_populares WHERE popularidad = 'Muy Popular';
@@ -118,11 +138,17 @@ EXPLAIN ANALYZE SELECT * FROM reporte_libros_populares WHERE popularidad = 'Muy 
 (21 rows)
 ```
 
+**Interpretación:**
+
+- **Hash Join:** PostgreSQL une las tablas `libros ↔ autores` y `libros ↔ prestamos` mediante Hash Joins, un método eficiente para joins de igualdad.
+- **HashAggregate:** Agrupa por `titulo`, `nombre` y `genero` para calcular `COUNT(p.id)`, y luego aplica el filtro `CASE` para clasificar la popularidad.
+- **Sort (quicksort):** Ordena los resultados por número de préstamos (`DESC`), usando solo 25kB de memoria.
+- **Seq Scan:** El motor usa Sequential Scan porque el dataset de prueba es pequeño (5 autores, 9 libros, 10 préstamos). Con volúmenes mayores, PostgreSQL elegiría automáticamente los Index Scans gracias a los índices definidos en `04_indexes.sql`.
+- **Execution Time: 1.109 ms** — Tiempo total de ejecución.
+
 ---
 
-### 2. Análisis de Agregaciones
-
-Ejecuta el siguiente comando para analizar el costo del `GROUP BY` en la vista de métricas de autores:
+### 2. Análisis de `reporte_autores_metricas`
 
 ```sql
 EXPLAIN ANALYZE SELECT * FROM reporte_autores_metricas;
@@ -154,6 +180,15 @@ EXPLAIN ANALYZE SELECT * FROM reporte_autores_metricas;
  Execution Time: 2.554 ms
 (19 rows)
 ```
+
+**Interpretación:**
+
+- **Hash Left Join:** A diferencia del reporte anterior, aquí se usa un `LEFT JOIN` para incluir autores que no tienen préstamos asociados, asegurando que ningún autor quede fuera del reporte.
+- **HashAggregate:** Agrupa por `nombre` y `nacionalidad` del autor para calcular las métricas (total de préstamos, promedio, etc.).
+- **Sort (quicksort):** Ordena los autores por cantidad de veces prestados (`DESC`), con un uso mínimo de memoria (25kB).
+- **Execution Time: 2.554 ms** — Ligeramente mayor que el reporte 1 debido al `LEFT JOIN` adicional.
+
+> **Nota:** Ambos reportes muestran `Seq Scan` (escaneo secuencial) porque el dataset de prueba contiene pocas filas. PostgreSQL determina que para tablas pequeñas es más rápido leer toda la tabla que consultar un índice. Con datasets de producción (miles o millones de registros), el planificador de PostgreSQL aprovechará automáticamente los índices B-Tree definidos en `04_indexes.sql`.
 
 ---
 
