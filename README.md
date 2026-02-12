@@ -33,9 +33,20 @@ Este proyecto implementa un dashboard de análisis de datos utilizando **Next.js
 
     Espera a que aparezca el mensaje `✓ Ready` en la terminal, indicando que tanto la base de datos como la aplicación están listas.
 
-4.  **Acceder a la aplicación:** Abre en tu navegador `http://localhost:3000` (o el puerto que hayas configurado en `NEXT_PUBLIC_APP_PORT`).
+4.  **Verificación (Opcional)**
 
-5.  **Detener el proyecto:**
+    Para validar que las Vistas y la Base de Datos se desplegaron correctamente sin necesidad de entrar manualmente, se incluye un script de automatización.
+
+    **Requisitos:** Tener `psql` instalado localmente y el contenedor corriendo.
+
+    ```bash
+    # Ejecutar desde la raíz
+    ./scripts/verify.sh
+    ```
+
+5.  **Acceder a la aplicación:** Abre en tu navegador `http://localhost:3000` (o el puerto que hayas configurado en `NEXT_PUBLIC_APP_PORT`).
+
+6.  **Detener el proyecto:**
 
     ```bash
     docker compose down
@@ -73,7 +84,7 @@ Para cumplir con el rendimiento en grandes volúmenes de datos, se crearon los s
 
 ---
 
-## Thread model and security
+## Threat Model and Security
 
 Para garantizar la integridad del sistema y proteger los datos de la biblioteca, se implementó una estrategia de seguridad en capas (Defense in Depth) cubriendo los siguientes vectores de ataque:
 
