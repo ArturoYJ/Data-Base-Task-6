@@ -38,3 +38,14 @@ export interface AutorMetrica {
   veces_prestado: number;
   rotacion: number;
 }
+
+export interface InventarioDisponibilidad {
+  titulo: string;
+  autor: string;
+  genero: string;
+  stock_total: number;
+  ejemplares_prestados: number;
+  disponibles: number;
+  porcentaje_disponibilidad: number;
+  estado_inventario: string;
+}
