@@ -33,4 +33,10 @@ INSERT INTO prestamos (usuario_id, libro_id, fecha_prestamo, fecha_devolucion, e
 (4, 5, '2024-01-05', '2024-01-12', 'devuelto', 0),
 (4, 6, '2024-01-20', NULL, 'retrasado', 10),
 (5, 8, '2024-03-01', NULL, 'pendiente', 0),
-(1, 4, '2024-03-15', NULL, 'pendiente', 0);
+(1, 4, '2024-03-15', NULL, 'pendiente', 0),
+-- Préstamos para demostrar Stock Bajo y Agotado en reporte_inventario_disponibilidad
+(3, 2, '2024-03-20', NULL, 'pendiente', 0),
+(4, 2, '2024-03-22', NULL, 'pendiente', 0),
+(5, 2, '2024-03-25', NULL, 'retrasado', 3),
+(3, 7, '2024-03-18', NULL, 'pendiente', 0),
+(4, 7, '2024-03-20', NULL, 'retrasado', 5);
