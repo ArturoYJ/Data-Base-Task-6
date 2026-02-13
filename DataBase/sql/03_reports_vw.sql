@@ -146,3 +146,44 @@ JOIN libros l ON l.autor_id = a.id
 LEFT JOIN prestamos p ON p.libro_id = l.id
 GROUP BY a.nombre, a.nacionalidad
 ORDER BY veces_prestado DESC;
+
+/*
+  VIEW: reporte_inventario_disponibilidad
+  DESCRIPCIÓN: Muestra la disponibilidad en tiempo real del inventario de la biblioteca.
+  GRAIN: Una fila por libro único.
+  MÉTRICAS: 
+    - stock_total: Cantidad física registrada en catálogo.
+    - ejemplares_prestados: Cantidad actualmente fuera de estantería (FILTER WHERE estado IN pendiente/retrasado).
+    - disponibles: Diferencia entre stock y prestados (campo calculado).
+    - porcentaje_disponibilidad: Ratio de disponibilidad expresado en porcentaje.
+    - estado_inventario: Clasificación cualitativa (CASE) del nivel de stock.
+  POR QUÉ GROUP BY:
+    - GROUP BY: Necesario para agregar préstamos activos por libro y calcular cuántos ejemplares están fuera.
+    - LEFT JOIN: Incluye libros que nunca han sido prestados (inventario completo).
+    - FILTER: Alternativa moderna a CASE dentro de COUNT, filtra solo préstamos activos.
+  VERIFY QUERY:
+    -- Verificar ejemplares prestados de 'Harry Potter y la Piedra Filosofal':
+    SELECT COUNT(*) FROM prestamos WHERE libro_id = 3 AND estado IN ('pendiente', 'retrasado');
+*/
+CREATE VIEW reporte_inventario_disponibilidad AS
+SELECT 
+    l.titulo,
+    a.nombre AS autor,
+    l.genero,
+    l.stock AS stock_total,
+    COUNT(p.id) FILTER (WHERE p.estado IN ('pendiente', 'retrasado')) AS ejemplares_prestados,
+    l.stock - COUNT(p.id) FILTER (WHERE p.estado IN ('pendiente', 'retrasado')) AS disponibles,
+    ROUND(
+        (l.stock - COUNT(p.id) FILTER (WHERE p.estado IN ('pendiente', 'retrasado')))::numeric 
+        / NULLIF(l.stock, 0) * 100, 1
+    ) AS porcentaje_disponibilidad,
+    CASE 
+        WHEN l.stock - COUNT(p.id) FILTER (WHERE p.estado IN ('pendiente', 'retrasado')) = 0 THEN 'Agotado'
+        WHEN l.stock - COUNT(p.id) FILTER (WHERE p.estado IN ('pendiente', 'retrasado')) <= 2 THEN 'Stock Bajo'
+        ELSE 'Disponible'
+    END AS estado_inventario
+FROM libros l
+JOIN autores a ON l.autor_id = a.id
+LEFT JOIN prestamos p ON p.libro_id = l.id
+GROUP BY l.id, l.titulo, a.nombre, l.genero, l.stock
+ORDER BY disponibles ASC;
