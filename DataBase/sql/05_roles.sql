@@ -10,5 +10,6 @@ GRANT SELECT ON reporte_usuarios_status TO ${APP_USER};
 GRANT SELECT ON reporte_ranking_generos TO ${APP_USER};
 GRANT SELECT ON reporte_prestamos_kpis TO ${APP_USER};
 GRANT SELECT ON reporte_autores_metricas TO ${APP_USER};
+GRANT SELECT ON reporte_inventario_disponibilidad TO ${APP_USER};
 
 REVOKE CREATE ON SCHEMA public FROM ${APP_USER};

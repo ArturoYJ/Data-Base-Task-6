@@ -119,3 +119,24 @@ export async function getAutoresMetricas(page: number = 1) {
     return { success: false, error: 'Error al cargar autores' };
   }
 }
+
+// REPORTE 6
+export async function getInventarioDisponibilidad(formData: FormData) {
+  const estado = formData.get('estado')?.toString() || 'Todos';
+
+  let query = 'SELECT * FROM reporte_inventario_disponibilidad';
+  const params: string[] = [];
+
+  if (estado !== 'Todos') {
+    query += ' WHERE estado_inventario = $1';
+    params.push(estado);
+  }
+
+  try {
+    const result = await pool.query(query, params);
+    return { success: true, data: result.rows };
+  } catch (error) {
+    console.error('Error en getInventarioDisponibilidad:', error);
+    return { success: false, error: 'Error al cargar inventario' };
+  }
+}
